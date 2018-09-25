@@ -6,7 +6,10 @@ const express      = require('express');
 const mongoose     = require('mongoose');
 const logger       = require('morgan');
 const cors         = require("cors");
+const session      = require("express-session");
+const MongoStore   = require("connect-mongo")(session);
 
+const passportSetup = require("./config/passport/passport-setup.js");
 
 mongoose
   .connect('mongodb://localhost/ironphones-server', {useNewUrlParser: true})
@@ -31,12 +34,24 @@ app.use(cors({
   // allow other domains/origins to send cookies
   credentials: true,
   // this is the domain we want cookies from (our React app)
-  origin: [ "http://locahost:3000" ]
+  origin: [ "http://localhost:3000" ]
 }));
+// Session setup AFTER CORS
+app.use(session({
+  secret: "qwertyuiop1234567890",
+  saveUninitialized: true,
+  resave: true,
+  store: new MongoStore({ mongooseConnection: mongoose.connection }),
+}));
+// Passport setup AFTER SESSION
+passportSetup(app);
 
 
 const phoneRouter = require("./routes/phone-router.js");
 app.use("/api", phoneRouter);
+
+const authRouter = require("./routes/auth-router.js");
+app.use("/api", authRouter);
 
 
 module.exports = app;

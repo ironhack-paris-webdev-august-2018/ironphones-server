@@ -30,14 +30,6 @@ function passportSetup (app) {
   // add Passport properties and methods to the "request" object in our ROUTES
   app.use(passport.initialize());
   app.use(passport.session());
-
-  app.use((req, res, next) => {
-    // make "req.user" accessible inside hbs files as "currentUser"
-    res.locals.currentUser = req.user;
-
-    // "next()" means continue on to the next middleware (our routes)
-    next();
-  });
 }
 
 

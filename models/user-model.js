@@ -13,27 +13,17 @@ const userSchema = new Schema({
     unique: true,
     match: /^.+@.+\..+$/,
   },
-  encryptedPassword: { type: String },
+  encryptedPassword: { type: String, required: true },
   role: {
     type: String,
     enum: [ "normal", "admin" ],
     required: true,
     default: "normal",
   },
-  avatar: {
-    type: String,
-    default: "/images/avatar.png",
-  }
+  avatar: { type: String }
 }, {
   // additional settings for Schema constructor function (class)
   timestamps: true,
-});
-
-// define the "isAdmin" virtual property (a property that's really a method)
-// CAN'T be an arrow function because it uses "this"
-// (we use this to get around the limits on conditions in HBS files)
-userSchema.virtual("isAdmin").get(function () {
-  return this.role === "admin";
 });
 
 const User = mongoose.model("User", userSchema);

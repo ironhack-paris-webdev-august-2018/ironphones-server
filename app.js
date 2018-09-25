@@ -26,6 +26,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 
+const phoneRouter = require("./routes/phone-router.js");
+app.use("/api", phoneRouter);
 
 
 module.exports = app;

@@ -8,11 +8,12 @@ const logger       = require('morgan');
 const cors         = require("cors");
 const session      = require("express-session");
 const MongoStore   = require("connect-mongo")(session);
+const path         = require("path");
 
 const passportSetup = require("./config/passport/passport-setup.js");
 
 mongoose
-  .connect('mongodb://localhost/ironphones-server', {useNewUrlParser: true})
+  .connect(process.env.MONGODB_URI, {useNewUrlParser: true})
   .then(x => {
     console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`)
   })
@@ -27,6 +28,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, "public")));
 
 // Allow Cross-Origin Resource Sharing (cors)
 // (access the API from the frontend JavaScript on a different domain/origin)
@@ -55,6 +57,13 @@ app.use("/api", authRouter);
 
 const fileRouter = require("./routes/file-router.js");
 app.use("/api", fileRouter);
+
+
+// Send React's HTML for all other routes (they might be React routes)
+// 😟 SIDE EFFECT: JSON 404 page won't work anymore
+app.use((req, res, next) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 
 module.exports = app;
